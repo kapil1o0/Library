@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head><title>{{ 'Edit' if book else 'Add' }} Book - Admin</title></head>
+<body>
+<h1>{{ 'Edit' if book else 'Add' }} Book</h1>
+<form method="POST" enctype="multipart/form-data">
+    <input type="text" name="title" placeholder="Book Title" value="{{ book.title if book else '' }}" required><br>
+    <input type="text" name="author" placeholder="Author" value="{{ book.author if book else '' }}" required><br>
+    <input type="text" name="subject" placeholder="Subject/Category" value="{{ book.subject if book else '' }}" required><br>
+    <textarea name="description" placeholder="Description">{{ book.description if book else '' }}</textarea><br>
+    <input type="text" name="isbn" placeholder="ISBN" value="{{ book.isbn if book else '' }}"><br>
+    <input type="text" name="publisher" placeholder="Publisher" value="{{ book.publisher if book else '' }}"><br>
+    <input type="text" name="edition" placeholder="Edition" value="{{ book.edition if book and book.edition else '' }}"><br>
+    <input type="text" name="language" placeholder="Language" value="{{ book.language if book else '' }}"><br>
+    <input type="number" name="year" placeholder="Year" value="{{ book.year if book else '' }}"><br>
+    <input type="text" name="tags" placeholder="Tags (comma-separated)" value="{{ ','.join(book.tags) if book and book.tags else '' }}"><br>
+    <input type="text" name="keywords" placeholder="Keywords (comma-separated)" value="{{ ','.join(book.keywords) if book and book.keywords else '' }}"><br>
+    PDF File: <input type="file" name="file" accept=".pdf"><br>
+    or External Link: <input type="url" name="external_link" value="{{ book.external_link if book and book.external_link else '' }}"><br>
+    Cover Image: <input type="file" name="cover" accept="image/*"><br>
+    {% if book and book.cover_filename %}
+        <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="100"><br>
+    {% endif %}
+    <input type="submit" value="{{ 'Update' if book else 'Add' }} Book">
+</form>
+<br>
+<a href="{{ url_for('admin') }}">Back to Admin Panel</a>
+</body>
+</html>

@@ -5,12 +5,20 @@
 <h1>Upload a New eBook</h1>
 
 <form method="POST" enctype="multipart/form-data">
-    <input type="text" name="title" placeholder="Title" required><br>
+    <input type="text" name="title" placeholder="Book Title" required><br>
     <input type="text" name="author" placeholder="Author" required><br>
     <input type="text" name="subject" placeholder="Subject" required><br>
-    <input type="file" name="file" accept="application/pdf" required><br>
-    <button type="submit">Upload</button>
+    <textarea name="description" placeholder="Description"></textarea><br>
+    <input type="text" name="isbn" placeholder="ISBN"><br>
+    <input type="text" name="publisher" placeholder="Publisher"><br>
+    <input type="text" name="language" placeholder="Language"><br>
+    <input type="number" name="year" placeholder="Year"><br>
+    <input type="text" name="tags" placeholder="Tags (comma-separated)"><br>
+    Upload PDF: <input type="file" name="file" accept=".pdf" required><br>
+    Upload Cover: <input type="file" name="cover" accept="image/*"><br>
+    <input type="submit" value="Upload Book">
 </form>
+
 
 <a href="{{ url_for('index') }}">Back to Home</a>
 </body>

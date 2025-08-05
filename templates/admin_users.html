@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head><title>User Management - Admin Panel</title></head>
+<body>
+<h1>👥 User Management</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a> |
+    <a href="{{ url_for('index') }}">Back to Library</a>
+</div>
+
+<table border="1" cellpadding="6" style="margin-top:20px;">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+            <a href="{{ url_for('admin_user_detail', user_id=user._id) }}">View Details</a> |
+            <a href="{{ url_for('admin_toggle_user_role', user_id=user._id) }}" onclick="return confirm('Change role for {{ user.name }}?');">Toggle Role</a> |
+            {% if user.role != 'admin' %}
+            <a href="{{ url_for('admin_delete_user', user_id=user._id) }}" onclick="return confirm('Delete user {{ user.name }}?');">Delete</a>
+            {% else %}
+            <span style="color: gray;">Cannot delete admin</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html> 

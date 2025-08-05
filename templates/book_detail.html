@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head><title>{{ book.title if book else 'Book Details' }}</title></head>
+<body>
+{% if error %}
+    <h2 style="color:red;">{{ error }}</h2>
+    <a href="{{ url_for('index') }}">Back to Library</a>
+{% else %}
+    <h1>{{ book.title }}</h1>
+    {% if book.cover_filename %}
+        <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="200"><br>
+    {% endif %}
+    <ul>
+        <li><b>Author:</b> {{ book.author }}</li>
+        <li><b>Subject:</b> {{ book.subject }}</li>
+        <li><b>Year:</b> {{ book.year }}</li>
+        <li><b>Language:</b> {{ book.language }}</li>
+        <li><b>ISBN:</b> {{ book.isbn }}</li>
+        <li><b>Publisher:</b> {{ book.publisher }}</li>
+        <li><b>Edition:</b> {{ book.get('edition', '') }}</li>
+        <li><b>Category:</b> {{ book.get('category', book.subject) }}</li>
+        <li><b>Tags:</b> {{ book.tags|join(', ') }}</li>
+        <li><b>Description:</b> {{ book.description }}</li>
+        <li><b>Uploaded By:</b> {{ book.uploaded_by or 'Unknown' }}</li>
+        <li><b>Upload Date:</b> {{ book.upload_date.strftime('%Y-%m-%d %H:%M') if book.upload_date else '' }}</li>
+        <li><b>Downloads:</b> {{ book.downloads or 0 }}</li>
+        <li><b>File:</b> {{ book.filename }} {% if file_size %} ({{ (file_size/1024)|round(1) }} KB){% endif %} [PDF]</li>
+    </ul>
+    <a href="{{ url_for('download', filename=book.filename) }}">Download PDF</a>
+    <br><br>
+    <a href="{{ url_for('index') }}">Back to Library</a>
+{% endif %}
+</body>
+</html>

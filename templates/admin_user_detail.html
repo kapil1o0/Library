@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head><title>User Details - Admin Panel</title></head>
+<body>
+<h1>👤 User Details</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin_users') }}">Back to User Management</a> |
+    <a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a> |
+    <a href="{{ url_for('index') }}">Back to Library</a>
+</div>
+
+<!-- User Information -->
+<h2>📋 User Information</h2>
+<table border="1" cellpadding="6" style="margin-top:20px;">
+    <tr>
+        <th>Name</th>
+        <td>{{ user.name }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <th>Role</th>
+        <td>{{ user.role }}</td>
+    </tr>
+    <tr>
+        <th>Actions</th>
+        <td>
+            <a href="{{ url_for('admin_toggle_user_role', user_id=user._id) }}" onclick="return confirm('Change role for {{ user.name }}?');">Toggle Role</a> |
+            {% if user.role != 'admin' %}
+            <a href="{{ url_for('admin_delete_user', user_id=user._id) }}" onclick="return confirm('Delete user {{ user.name }}?');">Delete User</a>
+            {% else %}
+            <span style="color: gray;">Cannot delete admin</span>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<!-- User's Uploaded Books -->
+<h2>📚 Books Uploaded by {{ user.name }}</h2>
+{% if books %}
+<table border="1" cellpadding="6" style="margin-top:20px;">
+    <tr>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Year</th>
+        <th>Language</th>
+        <th>Category</th>
+        <th>Downloads</th>
+        <th>Actions</th>
+    </tr>
+    {% for book in books %}
+    <tr>
+        <td>{% if book.cover_filename %}<img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="60">{% endif %}</td>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.year }}</td>
+        <td>{{ book.language }}</td>
+        <td>{{ book.subject }}</td>
+        <td>{{ book.downloads or 0 }}</td>
+        <td>
+            <a href="{{ url_for('admin_edit', book_id=book._id) }}">Edit</a> |
+            <a href="{{ url_for('admin_delete', book_id=book._id) }}" onclick="return confirm('Delete this book?');">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No books uploaded by this user yet.</p>
+{% endif %}
+
+</body>
+</html> 

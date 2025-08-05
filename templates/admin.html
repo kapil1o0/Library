@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head><title>Admin Panel - eBook Library</title></head>
+<body>
+<h1>Admin Panel - eBook Library</h1>
+
+<!-- Navigation -->
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin_add') }}">Add New Book</a> |
+    <a href="{{ url_for('admin_users') }}">Manage Users</a> |
+    <a href="{{ url_for('index') }}">Back to Library</a>
+</div>
+
+<!-- Books Section -->
+<h2>📚 Books Management</h2>
+<table border="1" cellpadding="6" style="margin-top:20px;">
+    <tr>
+        <th>Cover</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Year</th>
+        <th>Language</th>
+        <th>Category</th>
+        <th>Uploaded By</th>
+        <th>Actions</th>
+    </tr>
+    {% for book in books %}
+    <tr>
+        <td>{% if book.cover_filename %}<img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="60">{% endif %}</td>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.year }}</td>
+        <td>{{ book.language }}</td>
+        <td>{{ book.subject }}</td>
+        <td>{{ book.uploaded_by or 'Unknown' }}</td>
+        <td>
+            <a href="{{ url_for('admin_edit', book_id=book._id) }}">Edit</a> |
+            <a href="{{ url_for('admin_delete', book_id=book._id) }}" onclick="return confirm('Delete this book?');">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Users Section -->
+<h2>👥 Users Management</h2>
+<table border="1" cellpadding="6" style="margin-top:20px;">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+            <a href="{{ url_for('admin_user_detail', user_id=user._id) }}">View Details</a> |
+            <a href="{{ url_for('admin_toggle_user_role', user_id=user._id) }}" onclick="return confirm('Change role for {{ user.name }}?');">Toggle Role</a> |
+            {% if user.role != 'admin' %}
+            <a href="{{ url_for('admin_delete_user', user_id=user._id) }}" onclick="return confirm('Delete user {{ user.name }}?');">Delete</a>
+            {% else %}
+            <span style="color: gray;">Cannot delete admin</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

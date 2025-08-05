@@ -4,22 +4,78 @@
 <body>
 <h1>eBook Library</h1>
 
-<form method="POST">
-    <input type="text" name="search" placeholder="Search by title/author/subject">
-    <button type="submit">Search</button>
+<!-- Navigation -->
+<div style="margin-bottom: 20px;">
+    {% if session.get('logged_in') %}
+        <p>Welcome, {{ session.get('name', 'User') }} ({{ session.get('role') }})</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        
+        {% if session.get('role') == 'user' %}
+            <a href="{{ url_for('upload') }}">Upload a new book</a>
+        {% endif %}
+        
+        {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+</div>
+
+<!-- Search and Filters -->
+<form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="search" placeholder="Search by title/author/subject/keywords" value="{{ search_term|default('') }}">
+    <select name="author">
+        <option value="">All Authors</option>
+        {% for a in authors %}
+            <option value="{{ a }}" {% if a == selected_author %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+    </select>
+    <select name="year">
+        <option value="">All Years</option>
+        {% for y in years %}
+            <option value="{{ y }}" {% if y|string == selected_year|string %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+    <select name="subject">
+        <option value="">All Subjects</option>
+        {% for s in subjects %}
+            <option value="{{ s }}" {% if s == selected_subject %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+    <select name="language">
+        <option value="">All Languages</option>
+        {% for l in languages %}
+            <option value="{{ l }}" {% if l == selected_language %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+    <select name="sort">
+        <option value="">Sort: Newest</option>
+        <option value="title" {% if sort == 'title' %}selected{% endif %}>Title (A-Z)</option>
+        <option value="year" {% if sort == 'year' %}selected{% endif %}>Year (Newest)</option>
+        <option value="downloads" {% if sort == 'downloads' %}selected{% endif %}>Most Downloaded</option>
+    </select>
+    <button type="submit">Search/Filter</button>
 </form>
 
 <ul>
 {% for book in books %}
-    <li>
-        <strong>{{ book.title }}</strong> by {{ book.author }} [{{ book.subject }}] -
+    <div style="margin-bottom: 15px;">
+        {% if book.cover_filename %}
+            <a href="{{ url_for('book_detail', book_id=book._id) }}">
+                <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="100">
+            </a>
+        {% endif %}
+        <h3><a href="{{ url_for('book_detail', book_id=book._id) }}">{{ book.title }}</a></h3>
+        <p>Author: {{ book.author }}</p>
+        <p>Subject: {{ book.subject }}</p>
+        <p>Year: {{ book.year }} | Language: {{ book.language }}</p>
+        <p>{{ book.description }}</p>
         <a href="{{ url_for('download', filename=book.filename) }}">Download</a>
-    </li>
-{% else %}
-    <li>No books found.</li>
+    </div>
 {% endfor %}
 </ul>
 
-<a href="{{ url_for('upload') }}">Upload a new book</a>
 </body>
 </html>
