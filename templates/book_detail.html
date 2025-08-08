@@ -1,34 +1,70 @@
 <!doctype html>
 <html>
-<head><title>{{ book.title if book else 'Book Details' }}</title></head>
+<head>
+    <title>{{ book.title if book else 'Book Details' }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 <body>
 {% if error %}
     <h2 style="color:red;">{{ error }}</h2>
-    <a href="{{ url_for('index') }}">Back to Library</a>
+    <div class="mt-3">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Library</a>
+    </div>
 {% else %}
     <h1>{{ book.title }}</h1>
+    <div class="mb-3">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Library</a>
+        {% if is_admin %}
+        | <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Admin Dashboard</a>
+        {% endif %}
+    </div>
+
     {% if book.cover_filename %}
-        <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="200"><br>
+        <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="100" class="mb-3"><br>
     {% endif %}
-    <ul>
-        <li><b>Author:</b> {{ book.author }}</li>
-        <li><b>Subject:</b> {{ book.subject }}</li>
-        <li><b>Year:</b> {{ book.year }}</li>
-        <li><b>Language:</b> {{ book.language }}</li>
-        <li><b>ISBN:</b> {{ book.isbn }}</li>
-        <li><b>Publisher:</b> {{ book.publisher }}</li>
-        <li><b>Edition:</b> {{ book.get('edition', '') }}</li>
-        <li><b>Category:</b> {{ book.get('category', book.subject) }}</li>
-        <li><b>Tags:</b> {{ book.tags|join(', ') }}</li>
-        <li><b>Description:</b> {{ book.description }}</li>
-        <li><b>Uploaded By:</b> {{ book.uploaded_by or 'Unknown' }}</li>
-        <li><b>Upload Date:</b> {{ book.upload_date.strftime('%Y-%m-%d %H:%M') if book.upload_date else '' }}</li>
-        <li><b>Downloads:</b> {{ book.downloads or 0 }}</li>
-        <li><b>File:</b> {{ book.filename }} {% if file_size %} ({{ (file_size/1024)|round(1) }} KB){% endif %} [PDF]</li>
+    <ul class="list-group">
+        <li class="list-group-item"><b>Author:</b> {{ book.author or 'N/A' }}</li>
+        <li class="list-group-item"><b>Subject:</b> {{ book.subject or 'N/A' }}</li>
+        <li class="list-group-item"><b>Year:</b> {{ book.year or 'N/A' }}</li>
+        <li class="list-group-item"><b>Language:</b> {{ book.language or 'N/A' }}</li>
+        <li class="list-group-item"><b>ISBN:</b> {{ book.isbn or 'N/A' }}</li>
+        <li class="list-group-item"><b>Publisher:</b> {{ book.publisher or 'N/A' }}</li>
+        <li class="list-group-item"><b>Edition:</b> {{ book.edition or 'N/A' }}</li>
+        <li class="list-group-item"><b>Tags:</b> {{ book.tags|join(', ') if book.tags else 'None' }}</li>
+        <li class="list-group-item"><b>Description:</b> {{ book.description or 'No description available' }}</li>
+        <li class="list-group-item"><b>Uploaded By:</b> {{ get_user_name(book.uploaded_by) }}</li>
+        <li class="list-group-item"><b>Upload Date:</b> {{ book.upload_date.strftime('%Y-%m-%d %H:%M') if book.upload_date else 'N/A' }}</li>
+        <li class="list-group-item"><b>Downloads:</b> {{ book.downloads or 0 }}</li>
+        <li class="list-group-item"><b>File:</b> 
+            {% if book.filename %}
+            {{ book.filename }} ({{ (file_size/1024)|round(1) if file_size else 'N/A' }} KB) [PDF]
+            {% elif book.external_link %}
+            <a href="{{ book.external_link }}" target="_blank" class="btn btn-link">External Link</a>
+            {% else %}
+            No file or link available
+            {% endif %}
+        </li>
     </ul>
-    <a href="{{ url_for('download', filename=book.filename) }}">Download PDF</a>
-    <br><br>
-    <a href="{{ url_for('index') }}">Back to Library</a>
+
+    <!-- Conditional Download/Preview Logic -->
+    <div class="mt-3">
+        {% if book.filename %}
+            <a href="{{ url_for('preview', book_id=book._id) }}" class="btn btn-secondary">Read Preview Online</a>
+            {% if can_download %}
+            <a href="{{ url_for('download', book_id=book._id) }}" class="btn btn-primary">Download Book</a>
+            {% endif %}
+        {% elif book.external_link %}
+            <a href="{{ book.external_link }}" target="_blank" class="btn btn-link">Visit External Link</a>
+        {% endif %}
+        {% if is_admin %}
+            <a href="{{ url_for('admin_edit', book_id=book._id) }}" class="btn btn-warning">Edit</a>
+            <a href="{{ url_for('admin_delete', book_id=book._id) }}" class="btn btn-danger" onclick="return confirm('Delete this book?');">Delete</a>
+        {% endif %}
+    </div>
+
+    <div class="mt-3">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Library</a>
+    </div>
 {% endif %}
 </body>
 </html>

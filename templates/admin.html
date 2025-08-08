@@ -4,10 +4,12 @@
 <body>
 <h1>Admin Panel - eBook Library</h1>
 
+
 <!-- Navigation -->
 <div style="margin-bottom: 20px;">
     <a href="{{ url_for('admin_add') }}">Add New Book</a> |
     <a href="{{ url_for('admin_users') }}">Manage Users</a> |
+    <a href="{{ url_for('manage_access') }}">Manage Download Access</a> |
     <a href="{{ url_for('index') }}">Back to Library</a>
 </div>
 

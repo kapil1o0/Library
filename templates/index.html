@@ -1,81 +1,113 @@
 <!doctype html>
 <html>
-<head><title>eBook Library</title></head>
+<head>
+    <title>eBook Library</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .book { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .book h3 { margin-top: 0; color: #333; }
+        .book p { margin: 5px 0; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; }
+        .search-form { margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .search-form input, .search-form select { margin: 5px; padding: 5px; }
+        .search-form button { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .book-actions { margin-top: 10px; }
+        .book-actions a { margin-right: 10px; padding: 5px 10px; text-decoration: none; border-radius: 3px; }
+        .download-btn { background: #28a745; color: white; }
+        .preview-btn { background: #17a2b8; color: white; }
+    </style>
+</head>
 <body>
-<h1>eBook Library</h1>
+    <h1>eBook Library</h1>
 
-<!-- Navigation -->
-<div style="margin-bottom: 20px;">
-    {% if session.get('logged_in') %}
-        <p>Welcome, {{ session.get('name', 'User') }} ({{ session.get('role') }})</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-        
-        {% if session.get('role') == 'user' %}
-            <a href="{{ url_for('upload') }}">Upload a new book</a>
+    <!-- Navigation -->
+    <div class="nav">
+        {% if session.get('logged_in') %}
+            <p>Welcome, {{ session.get('name', 'User') }} ({{ session.get('role') }})</p>
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% if session.get('role') == 'user' %}
+                <a href="{{ url_for('upload') }}">Upload a new book</a>
+            {% endif %}
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
         {% endif %}
-        
-        {% if session.get('role') == 'admin' %}
-            <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
-        {% endif %}
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Register</a>
-    {% endif %}
-</div>
-
-<!-- Search and Filters -->
-<form method="get" style="margin-bottom: 20px;">
-    <input type="text" name="search" placeholder="Search by title/author/subject/keywords" value="{{ search_term|default('') }}">
-    <select name="author">
-        <option value="">All Authors</option>
-        {% for a in authors %}
-            <option value="{{ a }}" {% if a == selected_author %}selected{% endif %}>{{ a }}</option>
-        {% endfor %}
-    </select>
-    <select name="year">
-        <option value="">All Years</option>
-        {% for y in years %}
-            <option value="{{ y }}" {% if y|string == selected_year|string %}selected{% endif %}>{{ y }}</option>
-        {% endfor %}
-    </select>
-    <select name="subject">
-        <option value="">All Subjects</option>
-        {% for s in subjects %}
-            <option value="{{ s }}" {% if s == selected_subject %}selected{% endif %}>{{ s }}</option>
-        {% endfor %}
-    </select>
-    <select name="language">
-        <option value="">All Languages</option>
-        {% for l in languages %}
-            <option value="{{ l }}" {% if l == selected_language %}selected{% endif %}>{{ l }}</option>
-        {% endfor %}
-    </select>
-    <select name="sort">
-        <option value="">Sort: Newest</option>
-        <option value="title" {% if sort == 'title' %}selected{% endif %}>Title (A-Z)</option>
-        <option value="year" {% if sort == 'year' %}selected{% endif %}>Year (Newest)</option>
-        <option value="downloads" {% if sort == 'downloads' %}selected{% endif %}>Most Downloaded</option>
-    </select>
-    <button type="submit">Search/Filter</button>
-</form>
-
-<ul>
-{% for book in books %}
-    <div style="margin-bottom: 15px;">
-        {% if book.cover_filename %}
-            <a href="{{ url_for('book_detail', book_id=book._id) }}">
-                <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="100">
-            </a>
-        {% endif %}
-        <h3><a href="{{ url_for('book_detail', book_id=book._id) }}">{{ book.title }}</a></h3>
-        <p>Author: {{ book.author }}</p>
-        <p>Subject: {{ book.subject }}</p>
-        <p>Year: {{ book.year }} | Language: {{ book.language }}</p>
-        <p>{{ book.description }}</p>
-        <a href="{{ url_for('download', filename=book.filename) }}">Download</a>
     </div>
-{% endfor %}
-</ul>
+
+    <!-- Search and Filters -->
+    <form method="get" class="search-form">
+        <input type="text" name="search" placeholder="Search by title/author/subject/keywords" value="{{ search_term|default('') }}">
+        <select name="author">
+            <option value="">All Authors</option>
+            {% for a in authors %}
+                <option value="{{ a }}" {% if a == selected_author %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+        </select>
+        <select name="year">
+            <option value="">All Years</option>
+            {% for y in years %}
+                <option value="{{ y }}" {% if y|string == selected_year|string %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+        <select name="subject">
+            <option value="">All Subjects</option>
+            {% for s in subjects %}
+                <option value="{{ s }}" {% if s == selected_subject %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <select name="language">
+            <option value="">All Languages</option>
+            {% for l in languages %}
+                <option value="{{ l }}" {% if l == selected_language %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort">
+            <option value="">Sort: Newest</option>
+            <option value="title" {% if sort == 'title' %}selected{% endif %}>Title (A-Z)</option>
+            <option value="year" {% if sort == 'year' %}selected{% endif %}>Year (Newest)</option>
+            <option value="downloads" {% if sort == 'downloads' %}selected{% endif %}>Most Downloaded</option>
+        </select>
+        <button type="submit">Search/Filter</button>
+    </form>
+
+    <!-- Books List -->
+    <h2>Available Books ({{ books|length }} total)</h2>
+    
+
+    
+    {% if books %}
+        {% for book in books %}
+            <div class="book">
+                {% if book.cover_filename %}
+                    <a href="{{ url_for('book_detail', book_id=book._id|string) }}">
+                        <img src="{{ url_for('static', filename='covers/' ~ book.cover_filename) }}" width="100" alt="Book cover">
+                    </a>
+                {% endif %}
+                
+                <h3><a href="{{ url_for('book_detail', book_id=book._id|string) }}">{{ book.title }}</a></h3>
+                <p><strong>Author:</strong> {{ book.author }}</p>
+                <p><strong>Subject:</strong> {{ book.subject }}</p>
+                <p><strong>Year:</strong> {{ book.year }} | <strong>Language:</strong> {{ book.language }}</p>
+                {% if book.description %}
+                    <p><strong>Description:</strong> {{ book.description }}</p>
+                {% endif %}
+                
+                <div class="book-actions">
+                    {% if session.get('role') == 'admin' or session.get('user_id') in book.get('allowed_users', []) %}
+                        <a href="{{ url_for('download', book_id=book._id|string) }}" class="download-btn">Download</a>
+                    {% else %}
+                        <a href="{{ url_for('preview', book_id=book._id|string) }}" class="preview-btn" target="_blank">Preview</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No books found in the library.</p>
+    {% endif %}
 
 </body>
 </html>

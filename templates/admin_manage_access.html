@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head><title>Manage Download Access</title></head>
+<body>
+<h1>Manage Download Access</h1>
+<a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+
+<form method="post">
+    <label for="user_id">Select User:</label>
+    <select name="user_id" required>
+        {% for user in users %}
+            <option value="{{ user._id }}">{{ user.name or user.email }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>Select Books to Grant Download Access:</h3>
+    {% for book in books %}
+        <div>
+            <input type="checkbox" name="allowed_books" value="{{ book._id }}">
+            {{ book.title }} by {{ book.author }}
+        </div>
+    {% endfor %}
+
+    <button type="submit">Update Access</button>
+</form>
+</body>
+</html>
